@@ -32,7 +32,6 @@ jobs:
           7z x ${{ github.workspace }}/boost_1_78_0.zip -o${{ github.workspace }}/boost_1_78_0
 
       - name: install boost
-        id: set-boost
         shell: pwsh
         run: |
           cd ${{ github.workspace }}/boost_1_78_0/boost_1_78_0
@@ -40,7 +39,6 @@ jobs:
           .\b2
 
       - name: compress boost
-        id: set-boost
         shell: pwsh
         run: |
           cd ${{ github.workspace }}/boost_1_78_0
