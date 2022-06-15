@@ -1,0 +1,57 @@
+name: release-depend-bin
+on:
+  workflow_dispatch:
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    outputs:
+      release-upload-url: ${{ steps.create-release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: release-depend-bin
+          release_name: release depend bin
+          body: |
+            Dependent package for compile iotdb.
+          draft: false
+          prerelease: false
+#--------
+  release-boost-bin:
+    needs: collect
+    runs-on: windows-2022
+    steps:
+      - name: download & unpack boost
+        shell: cmd
+        run: |
+          C:\msys64\usr\bin\wget.exe -O ${{ github.workspace }}/boost_1_78_0.zip https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.zip
+          7z x ${{ github.workspace }}/boost_1_78_0.zip -o${{ github.workspace }}/boost_1_78_0
+
+      - name: install boost
+        id: set-boost
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}/boost_1_78_0/boost_1_78_0
+          .\bootstrap.bat
+          .\b2
+
+      - name: compress boost
+        id: set-boost
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}/boost_1_78_0
+          7z a boost_1_78_0.7z boost_1_78_0
+
+      - name: Upload boost.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.collect.outputs.release-upload-url }}
+          asset_path: cd ${{ github.workspace }}/boost_1_78_0/boost_1_78_0.7z
+          asset_name: boost_1_78_0-bin.7z
+          asset_content_type: application/zip
