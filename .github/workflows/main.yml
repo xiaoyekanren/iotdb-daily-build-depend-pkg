@@ -38,6 +38,13 @@ jobs:
           .\bootstrap.bat
           .\b2
 
+      - name: delete docs
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}/boost_1_78_0/boost_1_78_0
+          rm -rf doc
+          rm -rf more
+
       - name: compress boost
         shell: pwsh
         run: |
