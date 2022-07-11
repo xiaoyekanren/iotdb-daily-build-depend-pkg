@@ -8,6 +8,7 @@ jobs:
     outputs:
       release-upload-url: ${{ steps.create-release.outputs.upload_url }}
     steps:
+# 创建release
       - name: Create release
         id: create-release
         uses: actions/create-release@v1
@@ -21,36 +22,37 @@ jobs:
           draft: false
           prerelease: false
 #--------
-  release-boost-bin:
+  release-boost-bin-win:
     needs: collect
     runs-on: windows-2022
     steps:
+# 下载boost源码
       - name: download & unpack boost
         shell: cmd
         run: |
           C:\msys64\usr\bin\wget.exe -O ${{ github.workspace }}/boost_1_78_0.zip https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.zip
           7z x ${{ github.workspace }}/boost_1_78_0.zip -o${{ github.workspace }}/boost_1_78_0
-
+# 安装bosst
       - name: install boost
         shell: pwsh
         run: |
           cd ${{ github.workspace }}/boost_1_78_0/boost_1_78_0
           .\bootstrap.bat
           .\b2
-
+# 清理文件，降低空间占用
       - name: delete docs
         shell: cmd
         run: |
           cd ${{ github.workspace }}/boost_1_78_0/boost_1_78_0
           rd /s /q doc
           rd /s /q more
-
+# 压缩编译好的文件
       - name: compress boost
         shell: pwsh
         run: |
           cd ${{ github.workspace }}/boost_1_78_0
           7z a boost_1_78_0.7z boost_1_78_0
-
+# 上传到release
       - name: Upload boost.zip
         uses: actions/upload-release-asset@v1
         env:
